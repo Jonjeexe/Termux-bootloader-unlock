@@ -5,7 +5,7 @@ clear
 
 # Install figlet
 echo "- Installing additional files"
-f ! pkg install figlet -y; then
+if ! pkg install figlet -y; then
    echo "Error: Failed to install figlet. Please check your package manager or internet connection."
    exit 1
 fi
