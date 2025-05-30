@@ -3,10 +3,6 @@ A program that can be used to retrieve the bootloader unlock token for Xiaomi de
 
 **Note: This tool cannot bypass the 7, 14, 30 day unlock time.**
 
-• [How to unlock xiaomi device bootloader using termux?](https://youtu.be/zTArE7sixJI?si=p8m0iQ-D3_abJ_23)
-
-
-
 ## Usage
 ```console
 Usage: get_token.sh [OPTIONS] DATA
@@ -41,7 +37,7 @@ devices. using Termux.
 
 3) Clone this repo.
 ```console
-git clone https://github.com/RohitVerma882/termux-miunlock.git && cd termux-miunlock
+git clone https://github.com/Jonjeexe/Unlock-xiaomi && cd termux-miunlock
 ```
 
 4) Run ```setup.sh``` to install required packages.
