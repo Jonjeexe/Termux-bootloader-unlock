@@ -67,7 +67,7 @@ while true; do
         
        # Host device information
        echo -e "? \e[93mHost information\033[0m"
-       echo -e "- Phone: $(getprop ro.product.brand) Android $(adb shell getprop ro.build.version.release)"
+       echo -e "- Phone: $(getprop ro.product.brand) Android $(getprop ro.build.version.release)"
        echo -e "- Model: $(getprop ro.product.model)"
        
        # Get target devices information
