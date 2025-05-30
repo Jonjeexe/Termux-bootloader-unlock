@@ -131,7 +131,8 @@ while true; do
        echo "$UNLOCK_TOKEN" | xxd -r -p > token.bin
        echo "- \e[96mUnlocking bootloader \033[0m"
        mi-fastboot stage token.bin && mi-fastboot oem unlock
-       sleep 5
+       sleep 20
+       continue
        ;;
        
        3)
