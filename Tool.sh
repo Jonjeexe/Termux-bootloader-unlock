@@ -130,8 +130,8 @@ while true; do
        read -r UNLOCK_TOKEN
        echo "$UNLOCK_TOKEN" | xxd -r -p > token.bin
        echo "- \e[96mUnlocking bootloader \033[0m"
-       mi-fastboot stage token.bin && mi-fastboot oem unlock
-       sleep 20
+       termux-fastboot stage token.bin && termux-fastboot oem unlock
+       sleep 10m
        continue
        ;;
        
