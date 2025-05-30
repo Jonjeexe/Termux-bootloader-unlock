@@ -4,9 +4,9 @@
 set -e
 
 # Check for required tools
-for cmd in termux-fastboot xxd java; do
+for cmd in termux-fastboot xxd java timeout; do
     if ! command -v "$cmd" >/dev/null 2>&1; then
-        echo "Error: $cmd is not installed. Please install it and try again."
+        echo "Error: $cmd is not installed. Please install it (e.g., 'pkg install $cmd') and try again."
         exit 1
     fi
 done
@@ -86,7 +86,7 @@ while true; do
             id=$(termux-fastboot devices | awk '{print $1}')
             if [ -z "$id" ]; then
                 echo -e "\e[91m- No device connected in termux-fastboot mode.\033[0m"
-                echo "- Try again"
+                echo "- Please ensure device is in fastboot mode (e.g., 'adb reboot bootloader')."
                 sleep 2
                 continue
             fi
@@ -103,18 +103,21 @@ while true; do
                 echo "- Note: ADB not available or device not in ADB mode. Skipping host info."
             fi
 
-            # Get target information
+            # Get target information with timeout and debug
             echo -e "? Get Target information"
-            codename=$(termux-fastboot getvar product 2>&1 | grep "product:" | awk '{print $2}')
-            token=$(termux-fastboot oem get_token 2>&1 | grep "token:" | awk '{print $2}')
+            echo "- Running termux-fastboot getvar product..."
+            codename=$(timeout 10 termux-fastboot getvar product 2>&1 | grep -E "product:|ro.product.device" | awk '{print $2}' || echo "")
+            echo "- Raw codename output: $codename"
+            token=$(timeout 10 termux-fastboot oem get_token 2>&1 | grep "token:" | awk '{print $2}' || echo "")
+            echo "- Raw token output: $token"
 
             if [ -z "$codename" ]; then
-                echo -e "\e[91mError: Could not retrieve product codename. Ensure device is in termux-fastboot mode and connected.\033[0m"
+                echo -e "\e[91mError: Could not retrieve product codename. Ensure device is in fastboot mode and supports 'getvar product'.\033[0m"
                 sleep 2
                 continue
             fi
             if [ -z "$token" ]; then
-                echo -e "\e[91mError: Could not retrieve unlock token. Ensure device is in termux-fastboot mode and supports 'oem get_token'.\033[0m"
+                echo -e "\e[91mError: Could not retrieve unlock token. Ensure device supports 'oem get_token'.\033[0m"
                 sleep 2
                 continue
             fi
@@ -155,7 +158,7 @@ while true; do
             fi
 
             # Unlock bootloader
-            if termux-fastboot stage token.bin && termux-fastboot oem unlock; then
+            if timeout 10 termux-fastboot stage token.bin && timeout 10 termux-fastboot oem unlock; then
                 echo -e "\e[92m- Bootloader unlocked successfully!\033[0m"
                 rm -f token.bin
                 exit 0
@@ -167,14 +170,14 @@ while true; do
             fi
             ;;
         2)
-            echo -e "- \e[96mStart Unlocking bootloader of Snap\033[0m"
+            echo -e "- \e[96mStart Unlocking bootloader of Snapdragon\033[0m"
             echo ""
 
             # Check for connected devices
             id=$(termux-fastboot devices | awk '{print $1}')
             if [ -z "$id" ]; then
                 echo -e "\e[91m- No device connected in termux-fastboot mode.\033[0m"
-                echo "- Try again"
+                echo "- Please ensure device is in fastboot mode (e.g., 'adb reboot bootloader')."
                 sleep 2
                 continue
             fi
@@ -182,27 +185,28 @@ while true; do
             echo ""
 
             # Try to get device info via ADB (if available)
-            if command -v adb >/dev/null 2>&1 && adb devices | grep -q device; then
+            
                 echo -e "? Host information"
-                echo -e "- Phone: $(adb shell getprop ro.product.brand) Android $(adb shell getprop ro.build.version.release)"
-                echo -e "- Model: $(adb shell getprop ro.product.model)"
+                echo -e "- Phone: $(getprop ro.product.brand) Android $(adb shell getprop ro.build.version.release)"
+                echo -e "- Model: $(getprop ro.product.model)"
                 echo ""
-            else
-                echo "- Note: ADB not available or device not in ADB mode. Skipping host info."
-            fi
+            
 
-            # Get target information
+            # Get target information with timeout and debug
             echo -e "? Get Target information"
-            codename=$(termux-fastboot getvar product 2>&1 | grep "product:" | awk '{print $2}')
-            token=$(termux-fastboot getvar token 2>&1 | grep "token:" | awk '{print $2}')
+            echo "- Running termux-fastboot getvar product..."
+            codename=$(timeout 10 termux-fastboot getvar product 2>&1 | grep -E "product:|ro.product.device" | awk '{print $2}' || echo "")
+            echo "- Raw codename output: $codename"
+            token=$(timeout 10 termux-fastboot getvar token 2>&1 | grep "token:" | awk '{print $2}' || echo "")
+            echo "- Raw token output: $token"
 
             if [ -z "$codename" ]; then
-                echo -e "\e[91mError: Could not retrieve product codename. Ensure device is in termux-fastboot mode and connected.\033[0m"
+                echo -e "\e[91mError: Could not retrieve product codename. Ensure device is in fastboot mode and supports 'getvar product'.\033[0m"
                 sleep 2
                 continue
             fi
             if [ -z "$token" ]; then
-                echo -e "\e[91mError: Could not retrieve unlock token. Ensure device is in termux-fastboot mode and supports 'oem get_token'.\033[0m"
+                echo -e "\e[91mError: Could not retrieve unlock token. Ensure device supports 'getvar token'.\033[0m"
                 sleep 2
                 continue
             fi
@@ -243,7 +247,7 @@ while true; do
             fi
 
             # Unlock bootloader
-            if termux-fastboot stage token.bin && termux-fastboot oem unlock; then
+            if timeout 10 termux-fastboot stage token.bin && timeout 10 termux-fastboot oem unlock; then
                 echo -e "\e[92m- Bootloader unlocked successfully!\033[0m"
                 rm -f token.bin
                 exit 0
