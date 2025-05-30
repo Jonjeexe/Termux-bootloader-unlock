@@ -12,17 +12,19 @@ if [ ! -f "$PREFIX/etc/apt/sources.list.d/termux-adb.list" ]; then
     apt update
     apt install termux-adb
 else
-    echo "termux-adb already installed"
+    echo "- termux-adb already installed"
     apt install termux-adb
 fi
-echo "done!"
+echo "- done!"
 
 elif type fastboot &> /dev/null; then
 
-echo "Fastboot is already installed"
+echo "- Fastboot is already installed"
 
 else
 
-echo "I didn't find fastboot, please install it before proceeding."
+echo "- didn't find fastboot, please install it before proceeding."
 
 fi
+chmod +x Tool.sh
+bash Tool.sh
