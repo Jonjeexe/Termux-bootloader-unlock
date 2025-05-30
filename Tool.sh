@@ -4,7 +4,7 @@
 set -e
 
 # Check for required tools
-for cmd in fastboot xxd java; do
+for cmd in mi-fastboot xxd java; do
     if ! command -v "$cmd" >/dev/null 2>&1; then
         echo "Error: $cmd is not installed. Please install it and try again."
         exit 1
@@ -83,9 +83,9 @@ while true; do
             echo ""
 
             # Check for connected devices
-            id=$(fastboot devices | awk '{print $1}')
+            id=$(mi-fastboot devices | awk '{print $1}')
             if [ -z "$id" ]; then
-                echo -e "\e[91m- No device connected in Fastboot mode.\033[0m"
+                echo -e "\e[91m- No device connected in mi-fastboot mode.\033[0m"
                 echo "- Try again"
                 sleep 2
                 continue
@@ -105,16 +105,16 @@ while true; do
 
             # Get target information
             echo -e "? Get Target information"
-            codename=$(fastboot getvar product 2>&1 | grep "product:" | awk '{print $2}')
-            token=$(fastboot oem get_token 2>&1 | grep "token:" | awk '{print $2}')
+            codename=$(mi-fastboot getvar product 2>&1 | grep "product:" | awk '{print $2}')
+            token=$(mi-fastboot oem get_token 2>&1 | grep "token:" | awk '{print $2}')
 
             if [ -z "$codename" ]; then
-                echo -e "\e[91mError: Could not retrieve product codename. Ensure device is in Fastboot mode and connected.\033[0m"
+                echo -e "\e[91mError: Could not retrieve product codename. Ensure device is in mi-fastboot mode and connected.\033[0m"
                 sleep 2
                 continue
             fi
             if [ -z "$token" ]; then
-                echo -e "\e[91mError: Could not retrieve unlock token. Ensure device is in Fastboot mode and supports 'oem get_token'.\033[0m"
+                echo -e "\e[91mError: Could not retrieve unlock token. Ensure device is in mi-fastboot mode and supports 'oem get_token'.\033[0m"
                 sleep 2
                 continue
             fi
@@ -155,7 +155,7 @@ while true; do
             fi
 
             # Unlock bootloader
-            if fastboot stage token.bin && fastboot oem unlock; then
+            if mi-fastboot stage token.bin && mi-fastboot oem unlock; then
                 echo -e "\e[92m- Bootloader unlocked successfully!\033[0m"
                 rm -f token.bin
                 exit 0
@@ -171,9 +171,9 @@ while true; do
             echo -e "\e[93mThis feature is not yet implemented. Please check for updates.\033[0m"
             # Placeholder for Snapdragon logic
             # Example:
-            # id=$(fastboot devices | awk '{print $1}')
+            # id=$(mi-fastboot devices | awk '{print $1}')
             # if [ -z "$id" ]; then
-            #     echo "- No device connected in Fastboot mode."
+            #     echo "- No device connected in mi-fastboot mode."
             #     sleep 2
             #     continue
             # fi
