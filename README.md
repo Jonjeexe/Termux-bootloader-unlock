@@ -31,7 +31,7 @@ devices. using Termux.
 
 
 ## Some Instructions
-1) Install required apps [termux](https://github.com/termux/termux-app), [termux-api](https://github.com/termux/termux-api) and ```account.apk``` on your host device.
+1) Install required apps [termux](https://github.com/termux/termux-app), [termux-api](https://github.com/termux/termux-api) and [Mi Account](https://github.com/Jonjeexe/Termux-bootloader-unlock/releases/download/v1.0/Mi-Account.apk) on your host device.
 
 2) Login and bind your xiaomi account on your target device.
 
