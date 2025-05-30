@@ -167,19 +167,92 @@ while true; do
             fi
             ;;
         2)
-            echo -e "- \e[96mStart Unlocking bootloader of Snapdragon\033[0m"
-            echo -e "\e[93mThis feature is not yet implemented. Please check for updates.\033[0m"
-            # Placeholder for Snapdragon logic
-            # Example:
-            # id=$(termux-fastboot devices | awk '{print $1}')
-            # if [ -z "$id" ]; then
-            #     echo "- No device connected in termux-fastboot mode."
-            #     sleep 2
-            #     continue
-            # fi
-            # echo "- Implement Snapdragon unlock logic here"
-            sleep 2
-            continue
+            echo -e "- \e[96mStart Unlocking bootloader of Snap\033[0m"
+            echo ""
+
+            # Check for connected devices
+            id=$(termux-fastboot devices | awk '{print $1}')
+            if [ -z "$id" ]; then
+                echo -e "\e[91m- No device connected in termux-fastboot mode.\033[0m"
+                echo "- Try again"
+                sleep 2
+                continue
+            fi
+            echo "- Target device is connected: $id"
+            echo ""
+
+            # Try to get device info via ADB (if available)
+            if command -v adb >/dev/null 2>&1 && adb devices | grep -q device; then
+                echo -e "? Host information"
+                echo -e "- Phone: $(adb shell getprop ro.product.brand) Android $(adb shell getprop ro.build.version.release)"
+                echo -e "- Model: $(adb shell getprop ro.product.model)"
+                echo ""
+            else
+                echo "- Note: ADB not available or device not in ADB mode. Skipping host info."
+            fi
+
+            # Get target information
+            echo -e "? Get Target information"
+            codename=$(termux-fastboot getvar product 2>&1 | grep "product:" | awk '{print $2}')
+            token=$(termux-fastboot getvar token 2>&1 | grep "token:" | awk '{print $2}')
+
+            if [ -z "$codename" ]; then
+                echo -e "\e[91mError: Could not retrieve product codename. Ensure device is in termux-fastboot mode and connected.\033[0m"
+                sleep 2
+                continue
+            fi
+            if [ -z "$token" ]; then
+                echo -e "\e[91mError: Could not retrieve unlock token. Ensure device is in termux-fastboot mode and supports 'oem get_token'.\033[0m"
+                sleep 2
+                continue
+            fi
+            echo "- Device codename: $codename"
+            echo "- Device Token: $token"
+
+            # Get Mi account data
+            echo -n "Enter Mi account data: "
+            read -r mi_account
+            if [ -z "$mi_account" ]; then
+                echo -e "\e[91mError: No Mi Account data provided.\033[0m"
+                sleep 2
+                continue
+            fi
+
+            # Perform unlock
+            echo ""
+            echo -e "- Unlocking Bootloader of $codename"
+            get_javacmd
+            jar_output=$("$JAVACMD" -jar "$PRGDIR/get_token.jar" "$codename" "$token" "$mi_account" 2>&1)
+            if [ $? -ne 0 ]; then
+                echo -e "\e[91mError: get_token.jar failed to execute. Output: $jar_output\033[0m"
+                sleep 2
+                continue
+            fi
+
+            if [ -z "$jar_output" ]; then
+                echo -e "\e[93mWarning: get_token.jar produced no output. It may have written to a file or performed a silent operation.\033[0m"
+            fi
+
+            # Write token to file
+            echo "$jar_output" | xxd -r -p > token.bin
+            if [ ! -s token.bin ]; then
+                echo -e "\e[91mError: Failed to create token.bin or file is empty.\033[0m"
+                rm -f token.bin
+                sleep 2
+                continue
+            fi
+
+            # Unlock bootloader
+            if termux-fastboot stage token.bin && termux-fastboot oem unlock; then
+                echo -e "\e[92m- Bootloader unlocked successfully!\033[0m"
+                rm -f token.bin
+                exit 0
+            else
+                echo -e "\e[91mError: Failed to unlock bootloader.\033[0m"
+                rm -f token.bin
+                sleep 2
+                continue
+            fi
             ;;
         3)
             echo -e "- Exiting..."
