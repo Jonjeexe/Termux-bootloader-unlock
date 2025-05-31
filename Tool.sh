@@ -27,7 +27,7 @@ while true; do
     echo -e "- DEVELOPER    : \e[92m@Jonjeexe\033[0m "
     echo ""
     echo -e "-  \e[96mChoose Tools options\033[0m"
-    echo -e "1. \e[93mUnlock bootloader MediaTek (Xiaomi)\033[0m"
+    echo -e "1. \e[93mUnlock bootloader MediaTek  (Xiaomi)\033[0m"
     echo -e "2. \e[93mUnlock bootloader Snapdragon (Xiaomi)\033[0m"
     echo -e "3. \e[93mExit\033[0m"
     echo ""
@@ -54,42 +54,55 @@ while true; do
                 sleep 2
                 continue
         fi
-        echo "- \e[93mTarget device is connected\033[0m : $id"
+        echo -e "- \e[93mChecking Target devices!!\033[0m : $id"
+        echo -e "- \e[93mTarget device is connected\033[0m : $id"
         echo ""
         
        # Host device information
-       echo -e "? \e[93mHost information\033[0m"
+       echo -e "**************************************************"
+       echo -e "- \e[93mHost information ( Phone as a PC )\033[0m"
        echo -e "- Phone: $(getprop ro.product.brand) Android $(getprop ro.build.version.release)"
        echo -e "- Model: $(getprop ro.product.model)"
+       echo -e "**************************************************"
+       echo ""
        
        # Get target devices information
-       echo -e "? \e[93mTarget information\033[0m"
-       echo ""
+       echo -e "**************************************************"
+       echo -e "- \e[93mGetting Target device information ! \033[0m"
        termux-fastboot getvar product
        echo ""
        termux-fastboot oem get_token
+       echo ""       
+       echo -e "**************************************************"
        echo ""
-       echo -n "- Enter Target product code : "
+       echo -e "- Copy the value of \e[93mproduct: \033[0mgiven in the upper "
+       echo -n "- Enter Target product: "
        read -r codename
-       echo -n "- Enter Target token code : "
+       echo -e "- Copy the value of \e[93mtoken: \033[0mgiven in the upper "
+       echo -n "- Enter Target token : "
        read -r token
-       echo -n "- Enter Mi account app data : "
+       echo -e "- Copy the code from \e[93mMiUnlockAccount app\033[0m given in the app"
+       echo -n "- Enter Mi account app code: "
        read -r data
        chmod +x get_token.sh
        echo ""
+       echo -e "**************************************************"
        ./get_token.sh --product=$codename --token=$token $data
        echo ""
-       echo "- Copy the unlock token "
-       echo -n "- Enter Unlock token : "
+       echo -e "**************************************************"
+       echo ""
+       echo -e "- Copy the \e[93mUnlock device token:\033[0m given in the upper "
+       echo -n "- Enter Unlock device token : "
        read -r UNLOCK_TOKEN
        echo "$UNLOCK_TOKEN" | xxd -r -p > token.bin
        echo "- \e[96mUnlocking bootloader \033[0m"
        mi-fastboot stage token.bin && mi-fastboot oem unlock
-       sleep 5
+       sleep 10m
+       continue
        ;;
        
       2)
-        echo -e "- \e[96mStart Unlocking bootloader of Snapdragon\033[0m"
+        echo -e "- \e[96mStart Unlocking bootloader of Snapdragon \033[0m"
         echo ""
         
         # Check for connected devices
@@ -100,33 +113,45 @@ while true; do
                 sleep 2
                 continue
         fi
-        echo "- \e[93mTarget device is connected\033[0m : $id"
+        echo -e "- \e[93mChecking Target devices!!\033[0m : $id"
+        echo -e "- \e[93mTarget device is connected\033[0m : $id"
         echo ""
         
        # Host device information
-       echo -e "? \e[93mHost information\033[0m"
-       echo -e "- Phone: $(getprop ro.product.brand) Android $(adb shell getprop ro.build.version.release)"
+       echo -e "**************************************************"
+       echo -e "- \e[93mHost information ( Phone as a PC )\033[0m"
+       echo -e "- Phone: $(getprop ro.product.brand) Android $(getprop ro.build.version.release)"
        echo -e "- Model: $(getprop ro.product.model)"
+       echo -e "**************************************************"
+       echo ""
        
        # Get target devices information
-       echo -e "? \e[93mTarget information\033[0m"
-       echo ""
+       echo -e "**************************************************"
+       echo -e "- \e[93mGetting Target device information ! \033[0m"
        termux-fastboot getvar product
        echo ""
        termux-fastboot getvar token
+       echo ""       
+       echo -e "**************************************************"
        echo ""
-       echo -n "- Enter Target product code : "
+       echo -e "- Copy the value of \e[93mproduct: \033[0mgiven in the upper "
+       echo -n "- Enter Target product: "
        read -r codename
-       echo -n "- Enter Target token code : "
+       echo -e "- Copy the value of \e[93mtoken: \033[0mgiven in the upper "
+       echo -n "- Enter Target token : "
        read -r token
-       echo -n "- Enter Mi account app data : "
+       echo -e "- Copy the code from \e[93mMiUnlockAccount app\033[0m given in the app"
+       echo -n "- Enter Mi account app code: "
        read -r data
        chmod +x get_token.sh
        echo ""
+       echo -e "**************************************************"
        ./get_token.sh --product=$codename --token=$token $data
        echo ""
-       echo "- Copy the unlock token "
-       echo -n "- Enter Unlock token : "
+       echo -e "**************************************************"
+       echo ""
+       echo -e "- Copy the \e[93mUnlock device token:\033[0m given in the upper "
+       echo -n "- Enter Unlock device token : "
        read -r UNLOCK_TOKEN
        echo "$UNLOCK_TOKEN" | xxd -r -p > token.bin
        echo "- \e[96mUnlocking bootloader \033[0m"
